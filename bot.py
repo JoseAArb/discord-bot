@@ -4,10 +4,15 @@ import datetime
 import os
 import ssl
 import certifi
+import pytz  # Import pytz for timezone handling
+
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 
 # Load bot token from .env file
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+
+# Define the timezone you want to use (change accordingly)
+LOCAL_TIMEZONE = pytz.timezone("America/New_York")  # Example: Eastern Time (ET)
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
@@ -48,7 +53,10 @@ async def send_reminders():
     await client.wait_until_ready()
     
     while not client.is_closed():
-        now = datetime.datetime.now()
+        # Get the current time in UTC and convert it to the local timezone
+        now_utc = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        now = now_utc.astimezone(LOCAL_TIMEZONE)  # Convert to your local timezone
+
         current_time = now.strftime("%H:%M")
         current_date = now.strftime("%Y-%m-%d")
         current_day = now.strftime("%A")  # Get current day (Monday, Thursday, etc.)
@@ -99,10 +107,10 @@ async def send_reminders():
                 if current_day in meeting_schedule:
                     meeting_time_24hr = meeting_schedule[current_day]
                     
-                    # Convert meeting time to a datetime object
+                    # Convert meeting time to a datetime object with the correct timezone
                     meeting_hour, meeting_minute = map(int, meeting_time_24hr.split(":"))
-                    meeting_datetime = datetime.datetime.combine(now.date(), datetime.time(meeting_hour, meeting_minute))
-                    
+                    meeting_datetime = now.replace(hour=meeting_hour, minute=meeting_minute, second=0, microsecond=0)
+
                     # Calculate 10 minutes before the meeting
                     reminder_datetime = meeting_datetime - datetime.timedelta(minutes=10)
                     reminder_time = reminder_datetime.strftime("%H:%M")
