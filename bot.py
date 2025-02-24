@@ -13,16 +13,19 @@ intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
 # Assignment due date reminders (YYYY-MM-DD HH:MM format)
-due_dates = {
+report_dates = {
     "2025-02-27 23:59": "Progress Report 3",
     "2025-03-06 23:59": "Progress Report 4",
     "2025-03-13 23:59": "Progress Report 5",
-    "2025-03-30 23:59": "Midterm Presentation Submission",
     "2025-04-03 23:59": "Progress Report 6",
     "2025-04-10 23:59": "Progress Report 7",
     "2025-04-17 23:59": "Progress Report 8",
     "2025-04-24 23:59": "Progress Report 9",
     "2025-05-01 23:59": "Progress Report 10",
+}
+
+due_dates = {
+    "2025-03-30 23:59": "Midterm Presentation Submission",
     "2025-05-07 23:59": "Final Paper Submission",
     "2025-05-09 23:59": "Final Presentation Submission"
 }
@@ -65,7 +68,6 @@ async def send_reminders():
             # Assignment reminders (1 week, 3 days, 1 day before, and on due date)
             for due_date_time, message in due_dates.items():
                 due_date = due_date_time.split(" ")[0]  # Extract only the date
-                due_time = due_date_time.split(" ")[1]  # Extract only the time
                 
                 if due_dates_channel:
                     if current_date == due_date and current_time == "12:00":
@@ -76,6 +78,14 @@ async def send_reminders():
                         await due_dates_channel.send(f"@everyone ⏳ **3 days left!** {message}")
                     elif current_date == one_week_before and current_time == "12:00":
                         await due_dates_channel.send(f"@everyone 📅 **1 week left!** {message}")
+
+            # Report reminders (only sends on the due date)
+            for report_date_time, report_message in report_dates.items():
+                report_date = report_date_time.split(" ")[0]  # Extract only the date
+
+                if due_dates_channel:  # Uses the same channel as due_dates
+                    if current_date == report_date and current_time == "12:00":
+                        await due_dates_channel.send(f"@Jose 📝 **REPORT DUE TODAY:** {report_message}")
 
             # Meeting reminders:
             if meeting_channel:
@@ -97,8 +107,6 @@ async def send_reminders():
                     reminder_datetime = meeting_datetime - datetime.timedelta(minutes=10)
                     reminder_time = reminder_datetime.strftime("%H:%M")
                     meeting_time_12hr = meeting_datetime.strftime("%I:%M %p")
-                    
-
 
                     if current_time == reminder_time:
                         await meeting_channel.send(f"@everyone ⏳ **10-Minute Warning!** Meeting starts at {meeting_time_12hr}!")
