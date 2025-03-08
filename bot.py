@@ -37,9 +37,9 @@ due_dates = {
 
 # Meeting schedule (day-specific times in 24-hour format)
 meeting_schedule = {
-    "Monday": "21:00",   
-    "Thursday": "20:30", 
-    "Saturday": "18:00"    
+    "Monday": "13:00",   
+    "Thursday": "18:00", 
+    "Saturday": "13:00"    
 }
 
 # Function to find the correct channel by name
